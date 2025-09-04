@@ -5,7 +5,7 @@
 * Description: Category filter addeed. Posts Order and Post Types Objects Order using a Drag and Drop Sortable javascript capability
 * Author: Nsp Code Original Authors - Nsp Code, KISS Code
 * Author URI: https://kissplugins.com
-* Version: 2.4.1
+* Version: 2.8.1
 * Text Domain: post-types-order
 * Domain Path: /languages/
 */
@@ -13,7 +13,7 @@
     define('CPTPATH',   plugin_dir_path(__FILE__));
     define('CPTURL',    plugins_url('', __FILE__));
     
-    define('PTO_VERSION',          '2.4.1');
+    define('PTO_VERSION',          '2.8.1');
     
     include_once(CPTPATH . '/include/class.cpto.php');
     include_once(CPTPATH . '/include/class.functions.php');
@@ -25,11 +25,17 @@
     */
     function cpto_class_load()
         {
-            
+
             global $CPTO;
             $CPTO   =   new CPTO();
+
+            // Initialize self-tests (admin only)
+            if (is_admin()) {
+                include_once(CPTPATH . '/include/class.self-tests.php');
+                new PTO_SelfTests();
+            }
         }
-    add_action( 'plugins_loaded', 'cpto_class_load');            
+    add_action( 'plugins_loaded', 'cpto_class_load');
 
     
     /**
