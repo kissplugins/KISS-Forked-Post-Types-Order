@@ -36,10 +36,8 @@
                     ?>
                     <div id="cpto" class="wrap">
                         <div class="icon32" id="icon-edit"><br></div>
-                        <h2><?php echo esc_html( $this->CPTO->current_post_type->labels->singular_name . ' -  '. esc_html__('Re-Order', 'post-types-order') ); ?></h2>
+                        <h2><?php echo esc_html( $this->CPTO->current_post_type->labels->singular_name . ' -  '. esc_html__('KISS Re-Order', 'post-types-order') ); ?></h2>
 
-                        <?php $this->functions->cpt_info_box(); ?>  
-                        
                         <div id="ajax-response"></div>
                         
                         <noscript>
@@ -102,7 +100,24 @@
                                         if (!empty($terms)) {
                                             $term_names = array();
                                             foreach ($terms as $term) {
-                                                $term_names[] = $term->name . '(' . $term->count . ')';
+                                                // Get accurate count for this specific post type
+                                                $post_count_query = new WP_Query(array(
+                                                    'post_type' => $current_post_type->name,
+                                                    'post_status' => 'any',
+                                                    'posts_per_page' => -1,
+                                                    'fields' => 'ids',
+                                                    'tax_query' => array(
+                                                        array(
+                                                            'taxonomy' => $taxonomy->name,
+                                                            'field' => 'term_id',
+                                                            'terms' => $term->term_id,
+                                                        ),
+                                                    ),
+                                                ));
+                                                $post_count = $post_count_query->found_posts;
+                                                wp_reset_postdata();
+
+                                                $term_names[] = $term->name . '(' . $post_count . ')';
                                             }
                                             echo ' [' . implode(', ', array_slice($term_names, 0, 5)) . (count($term_names) > 5 ? '...' : '') . ']';
                                         }
@@ -138,7 +153,24 @@
                                 $has_hierarchical_taxonomies = true;
                                 $taxonomy_options .= '<optgroup label="' . esc_attr($taxonomy->label) . '">';
                                 foreach ($terms as $term) {
-                                    $taxonomy_options .= '<option value="' . esc_attr($taxonomy->name . ':' . $term->term_id) . '">' . esc_html($term->name) . ' (' . $term->count . ')</option>';
+                                    // Get accurate count for this specific post type
+                                    $post_count_query = new WP_Query(array(
+                                        'post_type' => $current_post_type->name,
+                                        'post_status' => 'any',
+                                        'posts_per_page' => -1,
+                                        'fields' => 'ids',
+                                        'tax_query' => array(
+                                            array(
+                                                'taxonomy' => $taxonomy->name,
+                                                'field' => 'term_id',
+                                                'terms' => $term->term_id,
+                                            ),
+                                        ),
+                                    ));
+                                    $post_count = $post_count_query->found_posts;
+                                    wp_reset_postdata();
+
+                                    $taxonomy_options .= '<option value="' . esc_attr($taxonomy->name . ':' . $term->term_id) . '">' . esc_html($term->name) . ' (' . $post_count . ')</option>';
                                 }
                                 $taxonomy_options .= '</optgroup>';
                                 $debug_info[] = "Added {$taxonomy->name} with " . count($terms) . " terms";

@@ -730,12 +730,12 @@
                             $required_capability = apply_filters('pto/edit_capability', $capability, $post_type_name);
                             
                             if ( $post_type_name == 'post' )
-                                $hookID   = add_submenu_page('edit.php', __('Re-Order', 'post-types-order'), __('Re-Order', 'post-types-order'), $required_capability, 'order-post-types-'.$post_type_name, array( $PTO_Interface, 'sort_page') );
-                            elseif ($post_type_name == 'attachment') 
-                                $hookID   = add_submenu_page('upload.php', __('Re-Order', 'post-types-order'), __('Re-Order', 'post-types-order'), $required_capability, 'order-post-types-'.$post_type_name, array( $PTO_Interface, 'sort_page') ); 
+                                $hookID   = add_submenu_page('edit.php', __('KISS Re-Order', 'post-types-order'), __('KISS Re-Order', 'post-types-order'), $required_capability, 'order-post-types-'.$post_type_name, array( $PTO_Interface, 'sort_page') );
+                            elseif ($post_type_name == 'attachment')
+                                $hookID   = add_submenu_page('upload.php', __('KISS Re-Order', 'post-types-order'), __('KISS Re-Order', 'post-types-order'), $required_capability, 'order-post-types-'.$post_type_name, array( $PTO_Interface, 'sort_page') );
                             else
                                 {
-                                    $hookID   = add_submenu_page('edit.php?post_type='.$post_type_name, __('Re-Order', 'post-types-order'), __('Re-Order', 'post-types-order'), $required_capability, 'order-post-types-'.$post_type_name, array( $PTO_Interface, 'sort_page') );    
+                                    $hookID   = add_submenu_page('edit.php?post_type='.$post_type_name, __('KISS Re-Order', 'post-types-order'), __('KISS Re-Order', 'post-types-order'), $required_capability, 'order-post-types-'.$post_type_name, array( $PTO_Interface, 'sort_page') );
                                 }
                             
                             add_action('admin_print_styles-' . $hookID ,    array($this, 'admin_reorder_styles'));
