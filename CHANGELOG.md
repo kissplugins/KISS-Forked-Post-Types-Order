@@ -5,6 +5,51 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.8.1] - 2025-01-04
+
+### Fixed
+- **Self-Tests**: Improved class loading and WordPress function availability checks
+- Enhanced PTO_Interface class loading in pagination performance test
+- Made AJAX action and hook registration tests more resilient
+- Added fallback handling for WordPress functions that may not be available during testing
+- Improved error handling and diagnostic messages in self-tests
+
+### Technical Improvements
+- Better class existence checking with automatic include attempts
+- More robust method existence validation for core functionality
+- Enhanced WordPress environment detection in test framework
+- Improved error messages with detailed diagnostic information
+
+## [2.8.0] - 2025-01-04
+
+### Added
+- **NEW FEATURE**: KISS Re-Order Self Tests page under WordPress Tools menu
+- Comprehensive self-testing system to detect regressions and bugs after refactoring
+- Four critical core tests covering database, ordering, security, and performance
+- Real-time test execution with AJAX-powered interface
+- Dynamic version display in page title
+- Detailed test results with execution timing and diagnostic information
+
+### Self-Test Features
+- **Database Connectivity Test**: Verifies database access and menu_order column functionality
+- **Post Ordering Functionality Test**: Validates core ordering mechanisms and WordPress hooks
+- **AJAX Security Validation Test**: Ensures security handlers and nonce validation work correctly
+- **Pagination Performance Test**: Confirms no unbounded queries and proper pagination limits
+
+### Developer Experience
+- Individual test execution with real-time status updates
+- "Run All Tests" functionality for comprehensive validation
+- Clear pass/fail indicators with detailed diagnostic output
+- Execution time tracking for performance monitoring
+- Professional UI with color-coded status indicators
+
+### Technical Implementation
+- New `PTO_SelfTests` class with comprehensive test framework
+- AJAX-powered test execution with proper security validation
+- Reflection-based code analysis for performance validation
+- Exception handling with detailed error reporting
+- WordPress admin integration under Tools menu
+
 ## [2.7.0] - 2025-01-04
 
 ### Security

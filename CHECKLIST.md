@@ -179,5 +179,27 @@ This checklist tracks performance improvements, security enhancements, and featu
 ---
 
 **Last Updated**: 2025-01-04
-**Plugin Version**: 2.7.0
-**Checklist Version**: 1.3
+**Plugin Version**: 2.8.1
+**Checklist Version**: 1.4.1
+
+---
+
+## 🧪 Self-Testing System
+
+### New Feature: KISS Re-Order Self Tests
+- **Location**: WordPress Admin → Tools → KISS Re-Order Self Tests
+- **Purpose**: Detect regressions and bugs after refactoring
+- **Tests Available**: 4 critical core tests
+- **Features**: Real-time execution, detailed diagnostics, performance timing
+
+### Available Tests
+1. **Database Connectivity Test**: Verifies database access and menu_order functionality
+2. **Post Ordering Functionality Test**: Validates core ordering mechanisms and hooks
+3. **AJAX Security Validation Test**: Ensures security handlers work correctly
+4. **Pagination Performance Test**: Confirms no unbounded queries exist
+
+### Usage
+- Run individual tests or all tests at once
+- Real-time status updates with pass/fail indicators
+- Detailed diagnostic output with execution timing
+- Clear results help identify specific issues
