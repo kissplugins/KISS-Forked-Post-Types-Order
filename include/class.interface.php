@@ -36,7 +36,7 @@
                     ?>
                     <div id="cpto" class="wrap">
                         <div class="icon32" id="icon-edit"><br></div>
-                        <h2><?php echo esc_html( $this->CPTO->current_post_type->labels->singular_name . ' -  '. esc_html__('Re-Order', 'post-types-order') ); ?></h2>
+                        <h2><?php echo esc_html( $this->CPTO->current_post_type->labels->singular_name . ' -  '. esc_html__('KISS Re-Order', 'post-types-order') ); ?></h2>
 
                         <div id="ajax-response"></div>
                         
