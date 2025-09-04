@@ -56,7 +56,7 @@ This fork is based on the excellent [Post Types Order plugin](https://wordpress.
 
 ## License
 
-This plugin inherits the license from the original Post Types Order plugin. Please refer to the original plugin documentation for licensing details.
+This plugin inherits the GPLv2 or later license from the original Post Types Order plugin. Please refer to the original plugin documentation for licensing details and recently added LICENSE.md file.
 
 ## Changelog
 
