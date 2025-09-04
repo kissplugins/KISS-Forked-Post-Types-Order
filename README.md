@@ -52,7 +52,7 @@ This fork is based on the excellent [Post Types Order plugin](https://wordpress.
 
 **Author**: KISS Plugins
 **Website**: [KISSplugins.com](https://KISSplugins.com)
-**Version**: 2.5.0
+**Version**: 2.6.0
 
 ## License
 

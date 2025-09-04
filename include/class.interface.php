@@ -3,11 +3,12 @@
     if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
     
     
-    class PTO_Interface 
+    class PTO_Interface
         {
-            
+
             var $functions;
             var $CPTO;
+            var $pagination_info;
             
             /**
             * Constructor
@@ -284,12 +285,14 @@
                             </div><!-- END #nav-menu-header -->
            
             
-                            <div id="post-body"> 
+                            <div id="post-body">
                                 <ul id="sortable" class="sortable ui-sortable">
-                                
+
                                     <?php $this->list_pages('hide_empty=0&title_li=&post_type=' . $this->CPTO->current_post_type->name ); ?>
-                                    
+
                                 </ul>
+
+                                <?php $this->render_pagination_controls(); ?>
                             </div>
                             
                             <div id="nav-menu-footer">
@@ -416,33 +419,39 @@
 
                 
             /**
-            * List pages
-            * 
+            * List pages with pagination support
+            *
             * @param mixed $args
             */
-            function list_pages($args = '') 
+            function list_pages($args = '')
                 {
                     $defaults = array(
-                        'depth'             => -1, 
+                        'depth'             => -1,
                         'date_format'       => get_option('date_format'),
-                        'child_of'          => 0, 
+                        'child_of'          => 0,
                         'sort_column'       => 'menu_order',
-                        'post_status'       =>  'any' 
+                        'post_status'       =>  'any',
+                        'posts_per_page'    => 50, // Default pagination limit
+                        'paged'             => 1   // Default page
                     );
 
                     $r = wp_parse_args( $args, $defaults );
                     extract( $r, EXTR_SKIP );
 
+                    // Get current page from URL parameter
+                    $current_page = isset($_GET['paged']) ? max(1, intval($_GET['paged'])) : 1;
+
                     $output = '';
 
                     $r['exclude'] = implode( ',', apply_filters('wp_list_pages_excludes', array()) );
-                    
-                    // Query pages.
+
+                    // Query pages with pagination
                     $r['hierarchical'] = 0;
                     $args = array(
                                 'sort_column'       =>  'menu_order',
                                 'post_type'         =>  $post_type,
-                                'posts_per_page'    => -1,
+                                'posts_per_page'    => $posts_per_page,
+                                'paged'             => $current_page,
                                 'post_status'       =>  'any',
                                 'orderby'            => array(
                                                             'menu_order'    => 'ASC',
@@ -456,22 +465,126 @@
                     $the_query  = new WP_Query( $args );
                     $pages      = $the_query->posts;
 
-                    if ( !empty($pages) ) 
+                    // Store pagination info for interface use
+                    $this->pagination_info = array(
+                        'current_page' => $current_page,
+                        'total_pages' => $the_query->max_num_pages,
+                        'total_posts' => $the_query->found_posts,
+                        'posts_per_page' => $posts_per_page
+                    );
+
+                    if ( !empty($pages) )
                         {
                             $output .= $this->walk_tree($pages, $r['depth'], $r);
                         }
 
                     echo    wp_kses_post    (   $output );
                 }
-            
+
+            /**
+            * Render pagination controls for the post list
+            */
+            function render_pagination_controls()
+                {
+                    if (!isset($this->pagination_info) || $this->pagination_info['total_pages'] <= 1) {
+                        return; // No pagination needed
+                    }
+
+                    $current_page = $this->pagination_info['current_page'];
+                    $total_pages = $this->pagination_info['total_pages'];
+                    $total_posts = $this->pagination_info['total_posts'];
+                    $posts_per_page = $this->pagination_info['posts_per_page'];
+
+                    // Get current URL parameters
+                    $current_url = remove_query_arg('paged');
+
+                    ?>
+                    <div class="pto-pagination" style="margin: 20px 0; padding: 15px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 4px;">
+                        <div class="pagination-info" style="margin-bottom: 10px;">
+                            <strong><?php echo sprintf(__('Showing page %d of %d (%d total posts)', 'post-types-order'), $current_page, $total_pages, $total_posts); ?></strong>
+                        </div>
+
+                        <div class="pagination-links">
+                            <?php
+                            // Previous page link
+                            if ($current_page > 1) {
+                                $prev_url = add_query_arg('paged', $current_page - 1, $current_url);
+                                echo '<a href="' . esc_url($prev_url) . '" class="button">&laquo; ' . __('Previous', 'post-types-order') . '</a> ';
+                            }
+
+                            // Page number links
+                            $start_page = max(1, $current_page - 2);
+                            $end_page = min($total_pages, $current_page + 2);
+
+                            if ($start_page > 1) {
+                                $first_url = add_query_arg('paged', 1, $current_url);
+                                echo '<a href="' . esc_url($first_url) . '" class="button">1</a> ';
+                                if ($start_page > 2) {
+                                    echo '<span>...</span> ';
+                                }
+                            }
+
+                            for ($i = $start_page; $i <= $end_page; $i++) {
+                                if ($i == $current_page) {
+                                    echo '<span class="button button-primary" style="cursor: default;">' . $i . '</span> ';
+                                } else {
+                                    $page_url = add_query_arg('paged', $i, $current_url);
+                                    echo '<a href="' . esc_url($page_url) . '" class="button">' . $i . '</a> ';
+                                }
+                            }
+
+                            if ($end_page < $total_pages) {
+                                if ($end_page < $total_pages - 1) {
+                                    echo '<span>...</span> ';
+                                }
+                                $last_url = add_query_arg('paged', $total_pages, $current_url);
+                                echo '<a href="' . esc_url($last_url) . '" class="button">' . $total_pages . '</a> ';
+                            }
+
+                            // Next page link
+                            if ($current_page < $total_pages) {
+                                $next_url = add_query_arg('paged', $current_page + 1, $current_url);
+                                echo '<a href="' . esc_url($next_url) . '" class="button">' . __('Next', 'post-types-order') . ' &raquo;</a>';
+                            }
+                            ?>
+                        </div>
+
+                        <div class="pagination-jump" style="margin-top: 10px;">
+                            <label for="page-jump"><?php _e('Go to page:', 'post-types-order'); ?></label>
+                            <input type="number" id="page-jump" min="1" max="<?php echo $total_pages; ?>" value="<?php echo $current_page; ?>" style="width: 60px; margin: 0 5px;">
+                            <button type="button" id="page-jump-btn" class="button"><?php _e('Go', 'post-types-order'); ?></button>
+                        </div>
+                    </div>
+
+                    <script type="text/javascript">
+                    jQuery(document).ready(function($) {
+                        $('#page-jump-btn').click(function() {
+                            var page = parseInt($('#page-jump').val());
+                            if (page >= 1 && page <= <?php echo $total_pages; ?>) {
+                                var url = '<?php echo esc_js($current_url); ?>';
+                                url += (url.indexOf('?') > -1 ? '&' : '?') + 'paged=' + page;
+                                window.location.href = url;
+                            }
+                        });
+
+                        $('#page-jump').keypress(function(e) {
+                            if (e.which == 13) {
+                                $('#page-jump-btn').click();
+                            }
+                        });
+                    });
+                    </script>
+                    <?php
+                }
+
             /**
             * Tree walker
-            * 
+            *
             * @param mixed $pages
             * @param mixed $depth
             * @param mixed $r
             */
-            function walk_tree($pages, $depth, $r) 
+            function walk_tree($pages, $depth, $r)
                 {
                     $walker = new Post_Types_Order_Walker;
 

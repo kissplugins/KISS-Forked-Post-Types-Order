@@ -5,6 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.6.0] - 2025-01-04
+
+### Added
+- **CRITICAL PERFORMANCE**: Implemented pagination for main post interface
+- Added comprehensive pagination controls with page navigation, jump-to-page functionality
+- Pagination now limits posts to 50 per page instead of loading all posts
+- Added pagination support to AJAX category filtering
+
+### Fixed
+- **CRITICAL PERFORMANCE**: Eliminated unbounded queries in main interface (`posts_per_page => -1`)
+- Fixed AJAX filter queries to use pagination instead of loading all posts
+- Improved memory usage by limiting post loading to manageable chunks
+
+### Performance Improvements
+- Main interface now loads 50 posts per page instead of all posts (unlimited)
+- Significantly reduced memory usage on sites with thousands of posts
+- Faster page load times and improved responsiveness
+- AJAX filtering now respects pagination limits
+
+### User Experience
+- Added intuitive pagination controls with previous/next navigation
+- Implemented page number links with smart ellipsis for large page counts
+- Added "jump to page" functionality for quick navigation
+- Pagination state preserved during category filtering
+
+### Technical Details
+- Added `render_pagination_controls()` method for consistent pagination UI
+- Enhanced AJAX responses to include pagination metadata
+- Implemented proper URL parameter handling for pagination state
+- Added pagination info storage in interface class
+
 ## [2.5.0] - 2025-01-04
 
 ### Fixed

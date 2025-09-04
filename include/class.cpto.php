@@ -621,10 +621,15 @@
                         return;
                     }
 
-                    // Build query args
+                    // Get pagination parameters
+                    $paged = isset($_POST['paged']) ? max(1, intval($_POST['paged'])) : 1;
+                    $posts_per_page = 50; // Match interface pagination
+
+                    // Build query args with pagination
                     $args = array(
                         'post_type' => $post_type,
-                        'posts_per_page' => -1,
+                        'posts_per_page' => $posts_per_page,
+                        'paged' => $paged,
                         'post_status' => 'any',
                         'orderby' => array(
                             'menu_order' => 'ASC',
@@ -666,12 +671,18 @@
 
                     $message = empty($category_filter)
                         ? __('Showing all posts.', 'post-types-order')
-                        : sprintf(__('Showing posts filtered by category. Found %d posts.', 'post-types-order'), count($posts));
+                        : sprintf(__('Showing posts filtered by category. Found %d posts.', 'post-types-order'), $the_query->found_posts);
 
                     wp_send_json_success(array(
                         'html' => $output,
                         'message' => $message,
-                        'count' => count($posts)
+                        'count' => count($posts),
+                        'pagination' => array(
+                            'current_page' => $paged,
+                            'total_pages' => $the_query->max_num_pages,
+                            'total_posts' => $the_query->found_posts,
+                            'posts_per_page' => $posts_per_page
+                        )
                     ));
                 }
 
