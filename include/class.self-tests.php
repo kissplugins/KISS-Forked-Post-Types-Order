@@ -2,21 +2,88 @@
 
     if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
     
-    class PTO_SelfTests 
+    /**
+     * KISS Post Types Order Self-Testing System
+     *
+     * ⚠️  CRITICAL DIAGNOSTIC SYSTEM - DO NOT REFACTOR UNLESS ABSOLUTELY NECESSARY ⚠️
+     *
+     * This class provides comprehensive self-testing functionality for the plugin and is responsible for:
+     * - Detecting regressions and bugs after code changes
+     * - Validating core functionality integrity
+     * - Performance monitoring and optimization verification
+     * - Security validation and vulnerability detection
+     * - Database connectivity and operation testing
+     *
+     * REFACTORING RISKS:
+     * - Loss of regression detection capabilities
+     * - Breaking diagnostic functionality for troubleshooting
+     * - Inability to validate plugin health after updates
+     * - Loss of performance monitoring capabilities
+     * - Breaking AJAX test execution system
+     *
+     * TESTING REQUIRED AFTER ANY CHANGES:
+     * - Run all self-tests to ensure they still function
+     * - Test AJAX execution and response handling
+     * - Verify UI components and status updates
+     * - Test with various WordPress environments
+     * - Validate security checks and error handling
+     *
+     * @package KISS_Post_Types_Order
+     * @subpackage Self_Tests
+     * @since 2.8.0
+     * @author KISS Code
+     */
+    class PTO_SelfTests
         {
-            
+
             /**
-            * Constructor
-            */
-            function __construct() 
+             * Constructor - Initialize self-testing system
+             *
+             * ⚠️  CRITICAL INITIALIZATION - DO NOT MODIFY UNLESS NECESSARY ⚠️
+             *
+             * Sets up WordPress hooks for:
+             * - Admin menu integration under Tools
+             * - AJAX handler for test execution
+             *
+             * REFACTORING RISKS:
+             * - Breaking admin menu integration
+             * - Loss of AJAX test execution capability
+             * - Breaking WordPress hook system integration
+             *
+             * @since 2.8.0
+             */
+            function __construct()
                 {
                     add_action('admin_menu', array($this, 'add_tools_menu'));
                     add_action('wp_ajax_pto_run_self_test', array($this, 'run_single_test'));
                 }
                 
             /**
-            * Add self-tests page to Tools menu
-            */
+             * Add self-tests page to WordPress Tools menu
+             *
+             * ⚠️  CRITICAL ADMIN INTEGRATION - DO NOT REFACTOR UNLESS NECESSARY ⚠️
+             *
+             * Creates the self-tests admin page under Tools menu with:
+             * - Proper capability checking (manage_options)
+             * - Internationalized menu labels
+             * - Integration with WordPress admin system
+             * - Dynamic version number in page title
+             *
+             * REFACTORING RISKS:
+             * - Breaking admin menu integration
+             * - Loss of self-tests page accessibility
+             * - Security issues with capability requirements
+             * - Breaking internationalization
+             *
+             * TESTING REQUIRED AFTER ANY CHANGES:
+             * - Verify menu appears under Tools for administrators
+             * - Test capability restrictions with different user roles
+             * - Verify page loads correctly with dynamic version
+             * - Test internationalization with different languages
+             *
+             * @since 2.8.0
+             * @return void
+             */
             function add_tools_menu()
                 {
                     add_management_page(
@@ -29,8 +96,35 @@
                 }
                 
             /**
-            * Render the self-tests page
-            */
+             * Render the self-tests page interface
+             *
+             * ⚠️  CRITICAL UI COMPONENT - DO NOT REFACTOR UNLESS NECESSARY ⚠️
+             *
+             * Generates the complete self-tests interface including:
+             * - Dynamic page title with version number
+             * - Test control buttons (Run All, Clear Results)
+             * - Dynamic test summary with real-time updates
+             * - Individual test cards with status indicators
+             * - CSS styling for professional appearance
+             * - JavaScript for AJAX test execution
+             *
+             * REFACTORING RISKS:
+             * - Breaking test execution interface
+             * - Loss of real-time status updates
+             * - Breaking AJAX communication with backend
+             * - CSS/JavaScript conflicts with WordPress admin
+             * - Loss of dynamic summary functionality
+             *
+             * TESTING REQUIRED AFTER ANY CHANGES:
+             * - Test complete interface rendering
+             * - Verify all buttons and controls work
+             * - Test AJAX execution and status updates
+             * - Verify CSS styling in different browsers
+             * - Test JavaScript functionality and error handling
+             *
+             * @since 2.8.0
+             * @return void Outputs HTML directly
+             */
             function render_tests_page()
                 {
                     ?>
@@ -254,8 +348,34 @@
                 }
 
             /**
-            * AJAX handler for running individual tests
-            */
+             * AJAX handler for running individual tests
+             *
+             * ⚠️  CRITICAL AJAX HANDLER - DO NOT REFACTOR UNLESS NECESSARY ⚠️
+             *
+             * Handles AJAX requests for test execution with:
+             * - Comprehensive security validation (nonce, capabilities)
+             * - Input sanitization and validation
+             * - Test execution coordination
+             * - JSON response formatting
+             * - Error handling and reporting
+             *
+             * REFACTORING RISKS:
+             * - Breaking AJAX test execution system
+             * - Security vulnerabilities in test execution
+             * - Loss of real-time test feedback
+             * - Breaking frontend JavaScript integration
+             * - Invalid JSON responses causing frontend errors
+             *
+             * TESTING REQUIRED AFTER ANY CHANGES:
+             * - Test AJAX security validation
+             * - Verify all test types execute correctly
+             * - Test error handling and response formats
+             * - Verify frontend receives proper responses
+             * - Test with different user permission levels
+             *
+             * @since 2.8.0
+             * @return void Outputs JSON response directly
+             */
             function run_single_test()
                 {
                     // Security checks
@@ -287,8 +407,35 @@
                 }
 
             /**
-            * Execute a specific test
-            */
+             * Execute a specific test by ID
+             *
+             * ⚠️  CRITICAL TEST COORDINATOR - DO NOT REFACTOR UNLESS NECESSARY ⚠️
+             *
+             * Coordinates test execution with:
+             * - Test routing and dispatch
+             * - Performance timing measurement
+             * - Exception handling and error reporting
+             * - Result formatting and standardization
+             * - Execution time tracking
+             *
+             * REFACTORING RISKS:
+             * - Breaking test execution routing
+             * - Loss of performance timing data
+             * - Breaking exception handling
+             * - Invalid result format causing frontend errors
+             * - Loss of test execution coordination
+             *
+             * TESTING REQUIRED AFTER ANY CHANGES:
+             * - Test all individual test types
+             * - Verify exception handling works correctly
+             * - Test performance timing accuracy
+             * - Verify result format consistency
+             * - Test with invalid test IDs
+             *
+             * @since 2.8.0
+             * @param string $test_id The ID of the test to execute
+             * @return array Test result with success status, message, and details
+             */
             function execute_test($test_id)
                 {
                     $start_time = microtime(true);
@@ -334,8 +481,34 @@
                 }
 
             /**
-            * Test 1: Database Connectivity
-            */
+             * Test 1: Database Connectivity and Operations
+             *
+             * ⚠️  CRITICAL DATABASE TEST - DO NOT REFACTOR UNLESS NECESSARY ⚠️
+             *
+             * Validates core database functionality including:
+             * - WordPress posts table accessibility
+             * - menu_order column query capability
+             * - UPDATE operation permissions
+             * - Database error handling
+             * - Connection stability verification
+             *
+             * REFACTORING RISKS:
+             * - Breaking database connectivity validation
+             * - Loss of menu_order column verification
+             * - Breaking UPDATE permission testing
+             * - Invalid SQL causing database errors
+             * - Loss of error detection capabilities
+             *
+             * TESTING REQUIRED AFTER ANY CHANGES:
+             * - Test with various database configurations
+             * - Verify error handling with invalid queries
+             * - Test UPDATE permission detection
+             * - Verify menu_order column accessibility
+             * - Test with different WordPress table prefixes
+             *
+             * @since 2.8.0
+             * @return array Test result with success status and diagnostic details
+             */
             function test_database_connectivity()
                 {
                     global $wpdb;
@@ -384,8 +557,34 @@
                 }
 
             /**
-            * Test 2: Post Ordering Functionality
-            */
+             * Test 2: Post Ordering Functionality and Core Integration
+             *
+             * ⚠️  CRITICAL FUNCTIONALITY TEST - DO NOT REFACTOR UNLESS NECESSARY ⚠️
+             *
+             * Validates core post ordering system including:
+             * - CPTO class initialization and availability
+             * - Core method existence and accessibility
+             * - WordPress hook registration verification
+             * - menu_order data integrity validation
+             * - Post ordering mechanism functionality
+             *
+             * REFACTORING RISKS:
+             * - Breaking core functionality validation
+             * - Loss of CPTO class verification
+             * - Breaking WordPress hook detection
+             * - Invalid menu_order validation logic
+             * - Loss of integration testing capabilities
+             *
+             * TESTING REQUIRED AFTER ANY CHANGES:
+             * - Test CPTO class loading and initialization
+             * - Verify all core methods are accessible
+             * - Test WordPress hook registration detection
+             * - Verify menu_order validation logic
+             * - Test with different post types and configurations
+             *
+             * @since 2.8.0
+             * @return array Test result with success status and diagnostic details
+             */
             function test_post_ordering_functionality()
                 {
                     global $wpdb;
@@ -490,8 +689,34 @@
                 }
 
             /**
-            * Test 3: AJAX Security Validation
-            */
+             * Test 3: AJAX Security Validation and Protection
+             *
+             * ⚠️  CRITICAL SECURITY TEST - DO NOT REFACTOR UNLESS NECESSARY ⚠️
+             *
+             * Validates AJAX security implementation including:
+             * - AJAX action registration verification
+             * - WordPress security function availability
+             * - Nonce generation and verification testing
+             * - Security handler functionality validation
+             * - Authentication and authorization checks
+             *
+             * REFACTORING RISKS:
+             * - Breaking security validation detection
+             * - Loss of AJAX action verification
+             * - Breaking nonce testing functionality
+             * - Invalid security function checking
+             * - Loss of vulnerability detection capabilities
+             *
+             * TESTING REQUIRED AFTER ANY CHANGES:
+             * - Test AJAX action registration detection
+             * - Verify nonce generation and verification
+             * - Test security function availability checks
+             * - Verify authentication requirement validation
+             * - Test with different WordPress security configurations
+             *
+             * @since 2.8.0
+             * @return array Test result with success status and diagnostic details
+             */
             function test_ajax_security_validation()
                 {
                     $checks = array();
@@ -562,8 +787,34 @@
                 }
 
             /**
-            * Test 4: Pagination Performance
-            */
+             * Test 4: Pagination Performance and Query Optimization
+             *
+             * ⚠️  CRITICAL PERFORMANCE TEST - DO NOT REFACTOR UNLESS NECESSARY ⚠️
+             *
+             * Validates pagination and performance optimizations including:
+             * - PTO_Interface class loading and availability
+             * - Pagination method existence verification
+             * - Unbounded query detection and prevention
+             * - Pagination limit enforcement (50 posts per page)
+             * - Performance optimization validation
+             *
+             * REFACTORING RISKS:
+             * - Breaking performance optimization detection
+             * - Loss of unbounded query prevention
+             * - Breaking pagination functionality validation
+             * - Invalid performance testing logic
+             * - Loss of query optimization verification
+             *
+             * TESTING REQUIRED AFTER ANY CHANGES:
+             * - Test PTO_Interface class loading
+             * - Verify pagination method detection
+             * - Test unbounded query detection logic
+             * - Verify pagination limit enforcement
+             * - Test with large datasets for performance validation
+             *
+             * @since 2.8.0
+             * @return array Test result with success status and diagnostic details
+             */
             function test_pagination_performance()
                 {
                     $checks = array();

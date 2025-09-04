@@ -5,6 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.8.4] - 2025-01-04
+
+### Added
+- **Self-Tests Documentation**: Comprehensive PHPDoc comments for all self-test methods
+- **Self-Tests Protection**: Critical function safeguards against unnecessary refactoring
+- **Developer Safety**: Detailed risk assessments for self-testing system components
+- **Testing Requirements**: Specific validation procedures for self-test modifications
+
+### Self-Tests Protection Features
+- **Class-Level Protection**: Comprehensive warning for entire PTO_SelfTests class
+- **Method-Level Safeguards**: Individual protection for all 8 critical methods
+- **Risk Documentation**: Detailed refactoring risks for each component
+- **Testing Procedures**: Required validation steps after any changes
+
+### Protected Self-Test Components
+- `PTO_SelfTests` class - Core diagnostic system
+- `__construct()` - WordPress hook initialization
+- `add_tools_menu()` - Admin menu integration
+- `render_tests_page()` - UI interface rendering
+- `run_single_test()` - AJAX test execution handler
+- `execute_test()` - Test coordination and routing
+- `test_database_connectivity()` - Database validation
+- `test_post_ordering_functionality()` - Core functionality testing
+- `test_ajax_security_validation()` - Security verification
+- `test_pagination_performance()` - Performance optimization validation
+
+### Documentation Improvements
+- **PHPDoc Standards**: Complete @since, @param, @return documentation
+- **Risk Assessment**: Detailed explanation of refactoring consequences
+- **Testing Integration**: References to validation procedures
+- **Dependency Mapping**: Clear component relationship documentation
+
 ## [2.8.3] - 2025-01-04
 
 ### Added
