@@ -179,8 +179,8 @@ This checklist tracks performance improvements, security enhancements, and featu
 ---
 
 **Last Updated**: 2025-01-04
-**Plugin Version**: 2.8.1
-**Checklist Version**: 1.4.1
+**Plugin Version**: 2.8.3
+**Checklist Version**: 1.4.3
 
 ---
 

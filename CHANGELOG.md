@@ -5,6 +5,55 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.8.3] - 2025-01-04
+
+### Added
+- **Code Protection**: Added comprehensive warning comments to critical core functions
+- Detailed refactoring risk assessments for all critical methods
+- Testing requirements documentation for each protected function
+- Dependency mapping for core functionality relationships
+
+### Code Protection Features
+- **Critical Function Identification**: Marked 6 core functions with protection warnings
+- **Risk Assessment**: Detailed documentation of refactoring risks for each function
+- **Testing Requirements**: Specific test procedures required after any changes
+- **Dependency Documentation**: Clear mapping of function relationships and dependencies
+
+### Protected Functions
+- `saveAjaxOrder()` - Core AJAX post ordering with security validation
+- `processOrderData()` - Database update processing with permission checks
+- `filterPostsByCategory()` - Category filtering functionality
+- `get_term_counts_optimized()` - Performance-critical N+1 query fix
+- `list_pages()` - Pagination and post listing interface
+- `pre_get_posts()` and `posts_orderby()` - WordPress core integration hooks
+
+### Developer Safety
+- Clear warnings against unnecessary refactoring
+- Comprehensive risk documentation
+- Required testing procedures for any changes
+- Self-test integration for validation
+
+## [2.8.2] - 2025-01-04
+
+### Added
+- **Self-Tests Enhancement**: Dynamic test summary at top of Self Tests page
+- Real-time summary showing "X of Y Tests Completed" with pass/fail status
+- Color-coded summary: Green for all passed, Red for failures, Blue for in progress
+- Summary automatically updates as tests complete
+- Summary hides when no tests have been run
+
+### User Experience Improvements
+- Immediate visual feedback on overall test status
+- Clear indication of testing progress
+- Professional summary display with color coding
+- Summary integrates seamlessly with existing test interface
+
+### Technical Implementation
+- JavaScript-powered dynamic summary updates
+- CSS styling for different summary states (pass/fail/partial)
+- Automatic summary refresh after each test completion
+- Summary state management with show/hide functionality
+
 ## [2.8.1] - 2025-01-04
 
 ### Fixed

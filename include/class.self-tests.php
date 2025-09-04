@@ -47,7 +47,11 @@
                                 <button type="button" id="run-all-tests" class="button button-primary"><?php _e('Run All Tests', 'post-types-order'); ?></button>
                                 <button type="button" id="clear-results" class="button"><?php _e('Clear Results', 'post-types-order'); ?></button>
                             </div>
-                            
+
+                            <div class="test-summary" id="test-summary" style="margin: 20px 0; padding: 15px; border-radius: 4px; font-weight: bold; display: none;">
+                                <span id="summary-text"></span>
+                            </div>
+
                             <div class="test-results" id="test-results">
                                 <!-- Test results will be populated here -->
                             </div>
@@ -86,6 +90,10 @@
                         .result-pass { background: #d1e7dd; border: 1px solid #badbcc; }
                         .result-fail { background: #f8d7da; border: 1px solid #f5c2c7; }
                         .test-details { font-family: monospace; font-size: 12px; margin-top: 10px; }
+                        .test-summary { border: 2px solid; }
+                        .summary-pass { background: #d1e7dd; border-color: #00a32a; color: #00a32a; }
+                        .summary-fail { background: #f8d7da; border-color: #d63638; color: #d63638; }
+                        .summary-partial { background: #fff3cd; border-color: #007cba; color: #007cba; }
                         </style>
                         
                         <script type="text/javascript">
@@ -93,21 +101,53 @@
                             $('#run-all-tests').click(function() {
                                 runAllTests();
                             });
-                            
+
                             $('#clear-results').click(function() {
                                 clearResults();
                             });
-                            
+
                             $('.run-single-test').click(function() {
                                 var testId = $(this).data('test-id');
                                 runSingleTest(testId);
                             });
-                            
+
                             function runAllTests() {
                                 $('.test-item').each(function() {
                                     var testId = $(this).data('test-id');
                                     runSingleTest(testId);
                                 });
+                            }
+
+                            function updateSummary() {
+                                var totalTests = $('.test-item').length;
+                                var passedTests = $('.test-status.status-pass').length;
+                                var failedTests = $('.test-status.status-fail').length;
+                                var runningTests = $('.test-status.status-running').length;
+                                var completedTests = passedTests + failedTests;
+
+                                var $summary = $('#test-summary');
+                                var $summaryText = $('#summary-text');
+
+                                if (completedTests === 0) {
+                                    $summary.hide();
+                                    return;
+                                }
+
+                                var summaryText = completedTests + ' of ' + totalTests + ' Tests Completed. ';
+
+                                if (failedTests === 0 && runningTests === 0 && completedTests === totalTests) {
+                                    summaryText += 'All Tests Passed';
+                                    $summary.removeClass('summary-fail summary-partial').addClass('summary-pass');
+                                } else if (failedTests > 0) {
+                                    summaryText += failedTests + ' Test' + (failedTests === 1 ? '' : 's') + ' Failed';
+                                    $summary.removeClass('summary-pass summary-partial').addClass('summary-fail');
+                                } else {
+                                    summaryText += 'Tests In Progress';
+                                    $summary.removeClass('summary-pass summary-fail').addClass('summary-partial');
+                                }
+
+                                $summaryText.text(summaryText);
+                                $summary.show();
                             }
                             
                             function runSingleTest(testId) {
@@ -134,10 +174,13 @@
                                             $status.removeClass('status-running').addClass('status-fail').text('FAIL');
                                             $result.removeClass('result-pass').addClass('result-fail').html(response.data.message).show();
                                         }
-                                        
+
                                         if (response.data.details) {
                                             $result.append('<div class="test-details">' + response.data.details + '</div>');
                                         }
+
+                                        // Update summary after each test completes
+                                        updateSummary();
                                     },
                                     error: function() {
                                         $status.removeClass('status-running').addClass('status-fail').text('ERROR');
@@ -149,6 +192,7 @@
                             function clearResults() {
                                 $('.test-status').removeClass('status-running status-pass status-fail').addClass('status-pending').text('Pending');
                                 $('.test-result').hide();
+                                $('#test-summary').hide();
                             }
                         });
                         </script>

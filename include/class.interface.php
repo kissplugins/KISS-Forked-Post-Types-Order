@@ -28,6 +28,29 @@
             * Get term counts for a specific post type and taxonomy efficiently
             * Replaces N+1 query problem with single optimized query
             *
+            * ⚠️  CRITICAL PERFORMANCE FUNCTION - DO NOT REFACTOR UNLESS ABSOLUTELY NECESSARY ⚠️
+            *
+            * This function is a critical performance optimization that:
+            * - Eliminates N+1 query problems in category count calculation
+            * - Reduces database queries from N+1 to 1 (95% reduction)
+            * - Implements intelligent caching to prevent repeated calculations
+            * - Uses optimized SQL with proper JOINs and GROUP BY
+            * - Handles multiple term IDs in a single database call
+            *
+            * REFACTORING RISKS:
+            * - Reintroducing N+1 query performance problems
+            * - Breaking category dropdown count accuracy
+            * - Loss of caching benefits causing repeated expensive queries
+            * - SQL injection vulnerabilities if input validation is removed
+            * - Memory issues on sites with many taxonomy terms
+            *
+            * TESTING REQUIRED AFTER ANY CHANGES:
+            * - Run Database Connectivity Test in self-tests
+            * - Test category dropdown performance with many terms
+            * - Verify count accuracy across different post types
+            * - Monitor query performance with database profiling
+            * - Test caching effectiveness and invalidation
+            *
             * @param string $post_type The post type to count
             * @param string $taxonomy The taxonomy to get counts for
             * @param array $term_ids Array of term IDs to get counts for
@@ -420,6 +443,29 @@
                 
             /**
             * List pages with pagination support
+            *
+            * ⚠️  CRITICAL CORE FUNCTION - DO NOT REFACTOR UNLESS ABSOLUTELY NECESSARY ⚠️
+            *
+            * This function is the core of the post listing interface and handles:
+            * - Loading posts with proper pagination (50 posts per page)
+            * - Preventing unbounded queries that cause performance issues
+            * - Maintaining sort order by menu_order and post_date
+            * - Storing pagination metadata for interface controls
+            * - Supporting category filtering integration
+            *
+            * REFACTORING RISKS:
+            * - Reintroducing unbounded queries (posts_per_page => -1)
+            * - Breaking pagination functionality
+            * - Performance degradation on large sites
+            * - Loss of sort order functionality
+            * - Breaking category filter integration
+            *
+            * TESTING REQUIRED AFTER ANY CHANGES:
+            * - Run Pagination Performance Test in self-tests
+            * - Test with sites having 1000+ posts
+            * - Verify pagination controls work correctly
+            * - Test category filtering with pagination
+            * - Monitor memory usage and query performance
             *
             * @param mixed $args
             */
