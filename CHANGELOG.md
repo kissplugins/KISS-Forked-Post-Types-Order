@@ -5,6 +5,87 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.8.4] - 2025-01-04
+
+### Added
+- **Self-Tests Documentation**: Comprehensive PHPDoc comments for all self-test methods
+- **Self-Tests Protection**: Critical function safeguards against unnecessary refactoring
+- **Developer Safety**: Detailed risk assessments for self-testing system components
+- **Testing Requirements**: Specific validation procedures for self-test modifications
+
+### Self-Tests Protection Features
+- **Class-Level Protection**: Comprehensive warning for entire PTO_SelfTests class
+- **Method-Level Safeguards**: Individual protection for all 8 critical methods
+- **Risk Documentation**: Detailed refactoring risks for each component
+- **Testing Procedures**: Required validation steps after any changes
+
+### Protected Self-Test Components
+- `PTO_SelfTests` class - Core diagnostic system
+- `__construct()` - WordPress hook initialization
+- `add_tools_menu()` - Admin menu integration
+- `render_tests_page()` - UI interface rendering
+- `run_single_test()` - AJAX test execution handler
+- `execute_test()` - Test coordination and routing
+- `test_database_connectivity()` - Database validation
+- `test_post_ordering_functionality()` - Core functionality testing
+- `test_ajax_security_validation()` - Security verification
+- `test_pagination_performance()` - Performance optimization validation
+
+### Documentation Improvements
+- **PHPDoc Standards**: Complete @since, @param, @return documentation
+- **Risk Assessment**: Detailed explanation of refactoring consequences
+- **Testing Integration**: References to validation procedures
+- **Dependency Mapping**: Clear component relationship documentation
+
+## [2.8.3] - 2025-01-04
+
+### Added
+- **Code Protection**: Added comprehensive warning comments to critical core functions
+- Detailed refactoring risk assessments for all critical methods
+- Testing requirements documentation for each protected function
+- Dependency mapping for core functionality relationships
+
+### Code Protection Features
+- **Critical Function Identification**: Marked 6 core functions with protection warnings
+- **Risk Assessment**: Detailed documentation of refactoring risks for each function
+- **Testing Requirements**: Specific test procedures required after any changes
+- **Dependency Documentation**: Clear mapping of function relationships and dependencies
+
+### Protected Functions
+- `saveAjaxOrder()` - Core AJAX post ordering with security validation
+- `processOrderData()` - Database update processing with permission checks
+- `filterPostsByCategory()` - Category filtering functionality
+- `get_term_counts_optimized()` - Performance-critical N+1 query fix
+- `list_pages()` - Pagination and post listing interface
+- `pre_get_posts()` and `posts_orderby()` - WordPress core integration hooks
+
+### Developer Safety
+- Clear warnings against unnecessary refactoring
+- Comprehensive risk documentation
+- Required testing procedures for any changes
+- Self-test integration for validation
+
+## [2.8.2] - 2025-01-04
+
+### Added
+- **Self-Tests Enhancement**: Dynamic test summary at top of Self Tests page
+- Real-time summary showing "X of Y Tests Completed" with pass/fail status
+- Color-coded summary: Green for all passed, Red for failures, Blue for in progress
+- Summary automatically updates as tests complete
+- Summary hides when no tests have been run
+
+### User Experience Improvements
+- Immediate visual feedback on overall test status
+- Clear indication of testing progress
+- Professional summary display with color coding
+- Summary integrates seamlessly with existing test interface
+
+### Technical Implementation
+- JavaScript-powered dynamic summary updates
+- CSS styling for different summary states (pass/fail/partial)
+- Automatic summary refresh after each test completion
+- Summary state management with show/hide functionality
+
 ## [2.8.1] - 2025-01-04
 
 ### Fixed

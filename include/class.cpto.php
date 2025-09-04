@@ -97,7 +97,30 @@
                 
             /**
             * Pre get posts filter
-            * 
+            *
+            * ⚠️  CRITICAL WORDPRESS HOOK - DO NOT REFACTOR UNLESS ABSOLUTELY NECESSARY ⚠️
+            *
+            * This function integrates with WordPress core query system and:
+            * - Applies custom post ordering to frontend queries
+            * - Respects ignore_custom_sort parameter for selective ordering
+            * - Handles autosort functionality based on plugin options
+            * - Maintains compatibility with WordPress query system
+            * - Prevents ordering conflicts with admin interfaces
+            *
+            * REFACTORING RISKS:
+            * - Breaking frontend post order display
+            * - Conflicts with WordPress core query behavior
+            * - Loss of autosort functionality
+            * - Breaking ignore_custom_sort parameter functionality
+            * - Performance issues with query modification
+            *
+            * TESTING REQUIRED AFTER ANY CHANGES:
+            * - Test frontend post order display
+            * - Verify autosort option functionality
+            * - Test ignore_custom_sort parameter
+            * - Check compatibility with various themes
+            * - Run Post Ordering Functionality Test in self-tests
+            *
             * @param mixed $query
             */
             function pre_get_posts($query)
@@ -137,11 +160,34 @@
             
             /**
             * Posts OrderBy filter
-            * 
+            *
+            * ⚠️  CRITICAL WORDPRESS HOOK - DO NOT REFACTOR UNLESS ABSOLUTELY NECESSARY ⚠️
+            *
+            * This function modifies WordPress SQL ORDER BY clauses and:
+            * - Applies menu_order sorting to database queries
+            * - Maintains fallback to post_date for posts with same menu_order
+            * - Respects ignore filters and admin interface exclusions
+            * - Integrates with WordPress query optimization
+            * - Handles various post type and query scenarios
+            *
+            * REFACTORING RISKS:
+            * - Breaking all custom post ordering on frontend
+            * - SQL syntax errors causing database failures
+            * - Performance degradation from inefficient ORDER BY clauses
+            * - Conflicts with other plugins modifying orderby
+            * - Loss of fallback sorting functionality
+            *
+            * TESTING REQUIRED AFTER ANY CHANGES:
+            * - Test frontend post order display across all post types
+            * - Verify SQL syntax with database query logging
+            * - Test performance with large datasets
+            * - Check compatibility with other orderby modifications
+            * - Run Post Ordering Functionality Test in self-tests
+            *
             * @param mixed $orderBy
             * @param mixed $query
             */
-            function posts_orderby($orderBy, $query) 
+            function posts_orderby($orderBy, $query)
                 {
                     global $wpdb;
                     
@@ -374,6 +420,33 @@
             /**
             * Save the order set through separate interface
             * Enhanced with comprehensive security validation
+            *
+            * ⚠️  CRITICAL CORE FUNCTION - DO NOT REFACTOR UNLESS ABSOLUTELY NECESSARY ⚠️
+            *
+            * This function is the heart of the post ordering system and handles:
+            * - AJAX post order saving with comprehensive security validation
+            * - Multi-layer authentication and authorization checks
+            * - Input sanitization and validation for all user data
+            * - Post ownership verification before allowing edits
+            * - Category filter handling for filtered ordering
+            *
+            * REFACTORING RISKS:
+            * - Breaking post ordering functionality across the entire plugin
+            * - Creating security vulnerabilities in AJAX handling
+            * - Loss of category filtering capabilities
+            * - Database corruption from invalid order data
+            *
+            * TESTING REQUIRED AFTER ANY CHANGES:
+            * - Run all self-tests under Tools → KISS Re-Order Self Tests
+            * - Test post ordering with and without category filters
+            * - Verify security validation with invalid inputs
+            * - Test with different user permission levels
+            *
+            * DEPENDENCIES:
+            * - processOrderData() method for actual database updates
+            * - saveFilteredAjaxOrder() method for category-filtered ordering
+            * - WordPress nonce and capability systems
+            * - Global $wpdb for database operations
             */
             function saveAjaxOrder()
                 {
@@ -449,6 +522,28 @@
 
             /**
             * Process order data with enhanced validation
+            *
+            * ⚠️  CRITICAL CORE FUNCTION - DO NOT REFACTOR UNLESS ABSOLUTELY NECESSARY ⚠️
+            *
+            * This function handles the actual database updates for post ordering and is responsible for:
+            * - Processing validated order data from AJAX requests
+            * - Updating menu_order values in the WordPress posts table
+            * - Handling both flat and hierarchical post structures
+            * - Applying WordPress filters for extensibility
+            * - Validating post ownership and edit permissions
+            *
+            * REFACTORING RISKS:
+            * - Breaking all post ordering functionality
+            * - Creating database corruption or inconsistencies
+            * - Loss of hierarchical post ordering capabilities
+            * - Breaking WordPress filter compatibility
+            * - Security vulnerabilities in post permission checking
+            *
+            * TESTING REQUIRED AFTER ANY CHANGES:
+            * - Run Database Connectivity Test in self-tests
+            * - Test ordering with hierarchical post types (pages)
+            * - Verify permission checking with different user roles
+            * - Test with large datasets to ensure performance
             *
             * @param array $data The order data to process
             */
@@ -752,6 +847,33 @@
             /**
             * Filter posts by category via AJAX
             * Enhanced with comprehensive security validation
+            *
+            * ⚠️  CRITICAL CORE FUNCTION - DO NOT REFACTOR UNLESS ABSOLUTELY NECESSARY ⚠️
+            *
+            * This function provides the category filtering functionality that allows users to:
+            * - Filter posts by taxonomy terms before reordering
+            * - Maintain pagination while filtering
+            * - Preserve order data during filtered operations
+            * - Return filtered post lists via AJAX
+            *
+            * REFACTORING RISKS:
+            * - Breaking category filter dropdown functionality
+            * - Loss of filtered post ordering capabilities
+            * - AJAX response format changes breaking frontend
+            * - Performance issues with large filtered datasets
+            * - Security vulnerabilities in taxonomy validation
+            *
+            * TESTING REQUIRED AFTER ANY CHANGES:
+            * - Test category filtering with various taxonomies
+            * - Verify pagination works with filtered results
+            * - Test AJAX responses and frontend integration
+            * - Run AJAX Security Validation Test in self-tests
+            *
+            * DEPENDENCIES:
+            * - WordPress taxonomy and term systems
+            * - AJAX nonce validation system
+            * - Pagination system for large result sets
+            * - Frontend JavaScript for filter interface
             */
             function filterPostsByCategory()
                 {
