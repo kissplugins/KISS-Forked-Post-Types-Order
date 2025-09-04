@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.8.5] - 2025-01-04
+
+### Security
+- **CRITICAL SECURITY FIX**: Completely secured debug-category-filter.php
+- **Eliminated wp-config.php exposure**: Removed direct WordPress configuration access
+- **Implemented WordPress authentication**: Requires admin login and capabilities
+- **Added nonce verification**: Enhanced CSRF protection for debug access
+- **Removed direct file access**: No more bypassing WordPress security system
+
+### Debug Tool Improvements
+- **Secure Integration**: Debug tool now integrates with self-tests system
+- **Professional UI**: WordPress admin styling and proper form tables
+- **Enhanced Functionality**: Better post type and taxonomy analysis
+- **Access Control**: Administrator-only access with proper capability checks
+- **User Experience**: Clean, professional interface with status indicators
+
+### Security Features
+- **WordPress Authentication Required**: Must be logged in as administrator
+- **Capability Verification**: Requires 'manage_options' capability
+- **Nonce Protection**: CSRF protection for all debug requests
+- **No Direct Access**: Prevents any direct file execution
+- **Integrated Access**: Available through Tools → KISS Re-Order Self Tests
+
+### Technical Improvements
+- **Secure File Structure**: Proper WordPress integration patterns
+- **Error Handling**: Graceful handling of missing functions or data
+- **Internationalization**: Proper translation support throughout
+- **Code Standards**: Follows WordPress coding and security standards
+
 ## [2.8.4] - 2025-01-04
 
 ### Added

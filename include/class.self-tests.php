@@ -127,6 +127,13 @@
              */
             function render_tests_page()
                 {
+                    // Check if debug tool is requested
+                    if (isset($_GET['pto_debug']) && $_GET['pto_debug'] === '1') {
+                        // Include the secure debug tool
+                        include_once(CPTPATH . '/debug-category-filter.php');
+                        return;
+                    }
+
                     ?>
                     <div class="wrap">
                         <h1><?php echo sprintf(__('KISS Re-Order Self Tests - v%s', 'post-types-order'), PTO_VERSION); ?></h1>
@@ -140,6 +147,7 @@
                             <div class="test-controls" style="margin: 20px 0;">
                                 <button type="button" id="run-all-tests" class="button button-primary"><?php _e('Run All Tests', 'post-types-order'); ?></button>
                                 <button type="button" id="clear-results" class="button"><?php _e('Clear Results', 'post-types-order'); ?></button>
+                                <a href="<?php echo admin_url('tools.php?page=pto-self-tests&pto_debug=1&_wpnonce=' . wp_create_nonce('pto_debug_nonce')); ?>" class="button"><?php _e('Category Filter Debug', 'post-types-order'); ?></a>
                             </div>
 
                             <div class="test-summary" id="test-summary" style="margin: 20px 0; padding: 15px; border-radius: 4px; font-weight: bold; display: none;">
