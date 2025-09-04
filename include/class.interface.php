@@ -11,16 +11,75 @@
             
             /**
             * Constructor
-            * 
+            *
             */
-            function __construct() 
+            function __construct()
                 {
 
                     $this->functions    =   new CptoFunctions();
-                    
+
                     global $CPTO;
                     $this->CPTO         =   $CPTO;
-                    
+
+                }
+
+            /**
+            * Get term counts for a specific post type and taxonomy efficiently
+            * Replaces N+1 query problem with single optimized query
+            *
+            * @param string $post_type The post type to count
+            * @param string $taxonomy The taxonomy to get counts for
+            * @param array $term_ids Array of term IDs to get counts for
+            * @return array Associative array of term_id => count
+            */
+            function get_term_counts_optimized($post_type, $taxonomy, $term_ids)
+                {
+                    global $wpdb;
+
+                    if (empty($term_ids)) {
+                        return array();
+                    }
+
+                    // Create cache key
+                    $cache_key = 'pto_term_counts_' . $post_type . '_' . $taxonomy . '_' . md5(serialize($term_ids));
+                    $cached_counts = wp_cache_get($cache_key, 'pto_term_counts');
+
+                    if (false !== $cached_counts) {
+                        return $cached_counts;
+                    }
+
+                    // Prepare term IDs for SQL
+                    $term_ids_sql = implode(',', array_map('intval', $term_ids));
+
+                    // Single optimized query to get all term counts
+                    $sql = $wpdb->prepare("
+                        SELECT tt.term_id, COUNT(DISTINCT p.ID) as post_count
+                        FROM {$wpdb->term_taxonomy} tt
+                        LEFT JOIN {$wpdb->term_relationships} tr ON tt.term_taxonomy_id = tr.term_taxonomy_id
+                        LEFT JOIN {$wpdb->posts} p ON tr.object_id = p.ID
+                            AND p.post_type = %s
+                            AND p.post_status IN ('publish', 'pending', 'draft', 'private', 'future', 'inherit')
+                        WHERE tt.taxonomy = %s
+                            AND tt.term_id IN ({$term_ids_sql})
+                        GROUP BY tt.term_id
+                    ", $post_type, $taxonomy);
+
+                    $results = $wpdb->get_results($sql);
+
+                    // Build associative array of term_id => count
+                    $counts = array();
+                    foreach ($term_ids as $term_id) {
+                        $counts[$term_id] = 0; // Default to 0
+                    }
+
+                    foreach ($results as $result) {
+                        $counts[$result->term_id] = (int) $result->post_count;
+                    }
+
+                    // Cache for 5 minutes
+                    wp_cache_set($cache_key, $counts, 'pto_term_counts', 300);
+
+                    return $counts;
                 }
                 
                 
@@ -98,25 +157,18 @@
                                     } else {
                                         echo ' - Terms: ' . count($terms);
                                         if (!empty($terms)) {
+                                            // Get all term IDs for efficient batch counting
+                                            $term_ids = array();
+                                            foreach ($terms as $term) {
+                                                $term_ids[] = $term->term_id;
+                                            }
+
+                                            // Get all counts in a single optimized query
+                                            $term_counts = $this->get_term_counts_optimized($current_post_type->name, $taxonomy->name, $term_ids);
+
                                             $term_names = array();
                                             foreach ($terms as $term) {
-                                                // Get accurate count for this specific post type
-                                                $post_count_query = new WP_Query(array(
-                                                    'post_type' => $current_post_type->name,
-                                                    'post_status' => 'any',
-                                                    'posts_per_page' => -1,
-                                                    'fields' => 'ids',
-                                                    'tax_query' => array(
-                                                        array(
-                                                            'taxonomy' => $taxonomy->name,
-                                                            'field' => 'term_id',
-                                                            'terms' => $term->term_id,
-                                                        ),
-                                                    ),
-                                                ));
-                                                $post_count = $post_count_query->found_posts;
-                                                wp_reset_postdata();
-
+                                                $post_count = isset($term_counts[$term->term_id]) ? $term_counts[$term->term_id] : 0;
                                                 $term_names[] = $term->name . '(' . $post_count . ')';
                                             }
                                             echo ' [' . implode(', ', array_slice($term_names, 0, 5)) . (count($term_names) > 5 ? '...' : '') . ']';
@@ -152,24 +204,18 @@
                             if (!empty($terms)) {
                                 $has_hierarchical_taxonomies = true;
                                 $taxonomy_options .= '<optgroup label="' . esc_attr($taxonomy->label) . '">';
-                                foreach ($terms as $term) {
-                                    // Get accurate count for this specific post type
-                                    $post_count_query = new WP_Query(array(
-                                        'post_type' => $current_post_type->name,
-                                        'post_status' => 'any',
-                                        'posts_per_page' => -1,
-                                        'fields' => 'ids',
-                                        'tax_query' => array(
-                                            array(
-                                                'taxonomy' => $taxonomy->name,
-                                                'field' => 'term_id',
-                                                'terms' => $term->term_id,
-                                            ),
-                                        ),
-                                    ));
-                                    $post_count = $post_count_query->found_posts;
-                                    wp_reset_postdata();
 
+                                // Get all term IDs for efficient batch counting
+                                $term_ids = array();
+                                foreach ($terms as $term) {
+                                    $term_ids[] = $term->term_id;
+                                }
+
+                                // Get all counts in a single optimized query
+                                $term_counts = $this->get_term_counts_optimized($current_post_type->name, $taxonomy->name, $term_ids);
+
+                                foreach ($terms as $term) {
+                                    $post_count = isset($term_counts[$term->term_id]) ? $term_counts[$term->term_id] : 0;
                                     $taxonomy_options .= '<option value="' . esc_attr($taxonomy->name . ':' . $term->term_id) . '">' . esc_html($term->name) . ' (' . $post_count . ')</option>';
                                 }
                                 $taxonomy_options .= '</optgroup>';

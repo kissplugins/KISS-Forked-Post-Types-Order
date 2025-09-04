@@ -52,11 +52,11 @@ This fork is based on the excellent [Post Types Order plugin](https://wordpress.
 
 **Author**: KISS Plugins
 **Website**: [KISSplugins.com](https://KISSplugins.com)
-**Version**: 2.4.1
+**Version**: 2.5.0
 
 ## License
 
-This plugin inherits the GPLv2 or later license from the original Post Types Order plugin. Please refer to the original plugin documentation for licensing details and recently added LICENSE.md file.
+This plugin inherits the GPLv2 or later license from the original Post Types Order plugin. Please refer to the original plugin documentation for licensing details and recently added  LICENSE.md file.
 
 ## Changelog
 
