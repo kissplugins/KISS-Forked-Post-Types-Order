@@ -5,6 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.7.0] - 2025-01-04
+
+### Security
+- **CRITICAL SECURITY**: Implemented comprehensive AJAX input validation and sanitization
+- Added authentication checks for all AJAX handlers
+- Enhanced nonce validation with proper error handling
+- Added capability checks for post type access
+- Implemented post ownership validation before allowing edits
+- Added input format validation with regex patterns
+- Enhanced error messages with proper internationalization
+
+### Security Improvements
+- **Authentication**: All AJAX handlers now verify user login status
+- **Authorization**: Capability checks for `edit_posts` and post-type-specific permissions
+- **Input Validation**: Comprehensive sanitization of all user inputs
+- **Nonce Security**: Strengthened nonce validation with detailed error responses
+- **Data Validation**: Post ID validation and ownership verification
+- **Format Validation**: Regex validation for taxonomy filters and post type names
+- **Error Handling**: Secure error responses using `wp_send_json_error()`
+
+### Technical Security Details
+- Enhanced `saveAjaxOrder()` with multi-layer validation
+- Improved `filterPostsByCategory()` with taxonomy/term existence checks
+- Strengthened `saveArchiveAjaxOrder()` with data format validation
+- Added `processOrderData()` method with post ownership verification
+- Enhanced `admin_init()` with post type access control
+
+### Vulnerability Fixes
+- Fixed potential privilege escalation in post reordering
+- Prevented unauthorized access to post type interfaces
+- Blocked invalid taxonomy/term manipulation
+- Secured against malformed input data attacks
+- Protected against CSRF attacks with enhanced nonce validation
+
 ## [2.6.0] - 2025-01-04
 
 ### Added

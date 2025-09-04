@@ -337,91 +337,197 @@
             
 
             /**
-            * Admin init
-            * 
+            * Admin init with enhanced security validation
             */
-            function admin_init() 
+            function admin_init()
                 {
-                    if ( isset($_GET['page']) && substr($_GET['page'], 0, 17) === 'order-post-types-' ) 
-                        {
-                            $this->current_post_type = get_post_type_object ( str_replace ( 'order-post-types-', '', sanitize_text_field( wp_unslash( $_GET['page'] ) ) ) );
-                            if ( $this->current_post_type === null) 
-                                {
-                                    wp_die('Invalid post type');
-                                }
-                        }                    
+                    if (isset($_GET['page']) && is_string($_GET['page'])) {
+                        $page = sanitize_text_field(wp_unslash($_GET['page']));
+
+                        // Security: Validate page parameter format
+                        if (substr($page, 0, 17) === 'order-post-types-') {
+                            $post_type_name = str_replace('order-post-types-', '', $page);
+
+                            // Security: Validate post type name format
+                            if (!preg_match('/^[a-zA-Z0-9_-]+$/', $post_type_name)) {
+                                wp_die(__('Invalid post type format.', 'post-types-order'));
+                                return;
+                            }
+
+                            // Security: Check if post type exists
+                            $this->current_post_type = get_post_type_object($post_type_name);
+                            if ($this->current_post_type === null) {
+                                wp_die(__('Invalid post type.', 'post-types-order'));
+                                return;
+                            }
+
+                            // Security: Check user capabilities for this post type
+                            if (!current_user_can($this->current_post_type->cap->edit_posts)) {
+                                wp_die(__('Insufficient permissions for this post type.', 'post-types-order'));
+                                return;
+                            }
+                        }
+                    }
                 }
             
             
             /**
             * Save the order set through separate interface
-            * 
+            * Enhanced with comprehensive security validation
             */
             function saveAjaxOrder()
                 {
+                    // Security: Check if user is logged in and has proper capabilities
+                    if (!is_user_logged_in()) {
+                        wp_send_json_error(array('message' => __('Authentication required.', 'post-types-order')));
+                        return;
+                    }
+
+                    // Security: Check user capabilities
+                    if (!current_user_can('edit_posts')) {
+                        wp_send_json_error(array('message' => __('Insufficient permissions.', 'post-types-order')));
+                        return;
+                    }
 
                     set_time_limit(600);
 
                     global $wpdb;
 
-                    $nonce      =   $_POST['interface_sort_nonce'];
+                    // Security: Validate and sanitize nonce
+                    $nonce = isset($_POST['interface_sort_nonce']) ? sanitize_text_field(wp_unslash($_POST['interface_sort_nonce'])) : '';
+                    if (empty($nonce) || !wp_verify_nonce($nonce, 'interface_sort_nonce')) {
+                        wp_send_json_error(array('message' => __('Security verification failed.', 'post-types-order')));
+                        return;
+                    }
 
-                    //verify the nonce
-                    if (! wp_verify_nonce( $nonce, 'interface_sort_nonce') )
-                        die();
+                    // Security: Validate and sanitize order data
+                    if (!isset($_POST['order']) || empty($_POST['order'])) {
+                        wp_send_json_error(array('message' => __('No order data provided.', 'post-types-order')));
+                        return;
+                    }
 
-                    parse_str( sanitize_text_field( wp_unslash( $_POST['order'] ) ) , $data );
+                    $order_raw = wp_unslash($_POST['order']);
+                    if (!is_string($order_raw)) {
+                        wp_send_json_error(array('message' => __('Invalid order data format.', 'post-types-order')));
+                        return;
+                    }
 
-                    // Check if category filter was applied
-                    $category_filter = isset($_POST['category_filter']) ? sanitize_text_field($_POST['category_filter']) : '';
+                    parse_str(sanitize_text_field($order_raw), $data);
 
-                    if (is_array($data))
-                        {
-                            // If category filter is applied, we need to handle order preservation
-                            if (!empty($category_filter)) {
-                                $this->saveFilteredAjaxOrder($data, $category_filter);
-                            } else {
-                                // Standard order saving (no filter applied)
-                                foreach($data as $key => $values )
-                                    {
-                                        if ( $key === 'item' )
-                                            {
-                                                foreach( $values as $position => $id )
-                                                    {
-                                                        //sanitize
-                                                        $id =   (int)$id;
+                    // Security: Validate parsed data
+                    if (!is_array($data) || empty($data)) {
+                        wp_send_json_error(array('message' => __('Invalid order data.', 'post-types-order')));
+                        return;
+                    }
 
-                                                        $data_update = array('menu_order' => $position);
+                    // Security: Validate and sanitize category filter
+                    $category_filter = '';
+                    if (isset($_POST['category_filter'])) {
+                        $category_filter = sanitize_text_field(wp_unslash($_POST['category_filter']));
+                        // Validate category filter format (taxonomy:term_id)
+                        if (!empty($category_filter) && !preg_match('/^[a-zA-Z0-9_-]+:[0-9]+$/', $category_filter)) {
+                            wp_send_json_error(array('message' => __('Invalid category filter format.', 'post-types-order')));
+                            return;
+                        }
+                    }
 
-                                                        //Deprecated, rely on pto/save-ajax-order
-                                                        $data_update = apply_filters('post-types-order_save-ajax-order', $data_update, $key, $id);
+                    // Process validated data
+                    if (!empty($category_filter)) {
+                        $this->saveFilteredAjaxOrder($data, $category_filter);
+                    } else {
+                        // Standard order saving (no filter applied)
+                        $this->processOrderData($data);
+                    }
 
-                                                        $data_update = apply_filters('pto/save-ajax-order', $data_update, $key, $id);
+                    //trigger action completed
+                    do_action('PTO/order_update_complete');
 
-                                                        $wpdb->update( $wpdb->posts, $data_update, array('ID' => $id) );
-                                                    }
-                                            }
-                                        else
-                                            {
-                                                foreach( $values as $position => $id )
-                                                    {
+                    CptoFunctions::site_cache_clear();
 
-                                                        //sanitize
-                                                        $id =   (int)$id;
+                    wp_send_json_success(array('message' => __('Order updated successfully.', 'post-types-order')));
+                }
 
-                                                        $data_update = array('menu_order' => $position, 'post_parent' => str_replace('item_', '', $key));
+            /**
+            * Process order data with enhanced validation
+            *
+            * @param array $data The order data to process
+            */
+            private function processOrderData($data)
+                {
+                    global $wpdb;
 
-                                                        //Deprecated, rely on pto/save-ajax-order
-                                                        $data_update = apply_filters('post-types-order_save-ajax-order', $data_update, $key, $id);
+                    foreach($data as $key => $values) {
+                        // Security: Validate key format
+                        if (!is_string($key) || (!$key === 'item' && !preg_match('/^item_[0-9]+$/', $key))) {
+                            continue; // Skip invalid keys
+                        }
 
-                                                        $data_update = apply_filters('pto/save-ajax-order', $data_update, $key, $id);
+                        if (!is_array($values)) {
+                            continue; // Skip invalid values
+                        }
 
-                                                        $wpdb->update( $wpdb->posts, $data_update, array('ID' => $id) );
-                                                    }
-                                            }
-                                    }
+                        if ($key === 'item') {
+                            foreach($values as $position => $id) {
+                                // Security: Validate position and ID
+                                $position = intval($position);
+                                $id = intval($id);
+
+                                if ($position < 0 || $id <= 0) {
+                                    continue; // Skip invalid data
+                                }
+
+                                // Security: Verify post exists and user can edit it
+                                $post = get_post($id);
+                                if (!$post || !current_user_can('edit_post', $id)) {
+                                    continue; // Skip posts user can't edit
+                                }
+
+                                $data_update = array('menu_order' => $position);
+
+                                //Deprecated, rely on pto/save-ajax-order
+                                $data_update = apply_filters('post-types-order_save-ajax-order', $data_update, $key, $id);
+                                $data_update = apply_filters('pto/save-ajax-order', $data_update, $key, $id);
+
+                                $wpdb->update($wpdb->posts, $data_update, array('ID' => $id));
+                            }
+                        } else {
+                            // Handle hierarchical posts
+                            $parent_id = intval(str_replace('item_', '', $key));
+
+                            // Security: Validate parent post
+                            if ($parent_id <= 0) {
+                                continue;
+                            }
+
+                            $parent_post = get_post($parent_id);
+                            if (!$parent_post || !current_user_can('edit_post', $parent_id)) {
+                                continue;
+                            }
+
+                            foreach($values as $position => $id) {
+                                $position = intval($position);
+                                $id = intval($id);
+
+                                if ($position < 0 || $id <= 0) {
+                                    continue;
+                                }
+
+                                // Security: Verify child post exists and user can edit it
+                                $post = get_post($id);
+                                if (!$post || !current_user_can('edit_post', $id)) {
+                                    continue;
+                                }
+
+                                $data_update = array('menu_order' => $position, 'post_parent' => $parent_id);
+
+                                //Deprecated, rely on pto/save-ajax-order
+                                $data_update = apply_filters('post-types-order_save-ajax-order', $data_update, $key, $id);
+                                $data_update = apply_filters('pto/save-ajax-order', $data_update, $key, $id);
+
+                                $wpdb->update($wpdb->posts, $data_update, array('ID' => $id));
                             }
                         }
+                    }
 
                     //trigger action completed
                     do_action('PTO/order_update_complete');
@@ -516,28 +622,72 @@
 
 
             /**
-            * Save the order set throgh the Archive 
-            * 
+            * Save the order set through the Archive
+            * Enhanced with comprehensive security validation
             */
             function saveArchiveAjaxOrder()
                 {
-                    
+                    // Security: Check if user is logged in and has proper capabilities
+                    if (!is_user_logged_in()) {
+                        wp_send_json_error(array('message' => __('Authentication required.', 'post-types-order')));
+                        return;
+                    }
+
+                    // Security: Check user capabilities
+                    if (!current_user_can('edit_posts')) {
+                        wp_send_json_error(array('message' => __('Insufficient permissions.', 'post-types-order')));
+                        return;
+                    }
+
                     set_time_limit(600);
-                    
+
                     global $wpdb, $userdata;
+
+                    // Security: Validate and sanitize post type
+                    if (!isset($_POST['post_type']) || empty($_POST['post_type'])) {
+                        wp_send_json_error(array('message' => __('Post type is required.', 'post-types-order')));
+                        return;
+                    }
+
+                    $post_type = preg_replace('/[^a-zA-Z0-9_\-]/', '', sanitize_text_field(wp_unslash($_POST['post_type'])));
+                    if (empty($post_type) || !post_type_exists($post_type)) {
+                        wp_send_json_error(array('message' => __('Invalid post type.', 'post-types-order')));
+                        return;
+                    }
+
+                    // Security: Validate and sanitize paged parameter
+                    $paged = 1;
+                    if (isset($_POST['paged'])) {
+                        $paged = filter_var(sanitize_text_field(wp_unslash($_POST['paged'])), FILTER_SANITIZE_NUMBER_INT);
+                        $paged = max(1, intval($paged)); // Ensure minimum value of 1
+                    }
+
+                    // Security: Validate and sanitize nonce
+                    $nonce = isset($_POST['archive_sort_nonce']) ? sanitize_text_field(wp_unslash($_POST['archive_sort_nonce'])) : '';
+                    if (empty($nonce) || !wp_verify_nonce($nonce, 'CPTO_archive_sort_nonce_' . $userdata->ID)) {
+                        wp_send_json_error(array('message' => __('Security verification failed.', 'post-types-order')));
+                        return;
+                    }
+
+                    // Security: Validate and sanitize order data
+                    if (!isset($_POST['order']) || empty($_POST['order'])) {
+                        wp_send_json_error(array('message' => __('No order data provided.', 'post-types-order')));
+                        return;
+                    }
+
+                    $order_raw = wp_unslash($_POST['order']);
+                    if (!is_string($order_raw)) {
+                        wp_send_json_error(array('message' => __('Invalid order data format.', 'post-types-order')));
+                        return;
+                    }
+
+                    parse_str(sanitize_text_field($order_raw), $data);
                     
-                    $post_type  =   preg_replace( '/[^a-zA-Z0-9_\-]/', '', sanitize_text_field( wp_unslash( $_POST['post_type'] ) ) );
-                    $paged      =   filter_var ( sanitize_text_field( wp_unslash( $_POST['paged'] ) ), FILTER_SANITIZE_NUMBER_INT);
-                    $nonce      =   ( isset( $_POST['archive_sort_nonce'] ) ) ? sanitize_text_field( wp_unslash( $_POST['archive_sort_nonce'] ) ) : '';
-                    
-                    //verify the nonce
-                    if ( ! wp_verify_nonce( $nonce, 'CPTO_archive_sort_nonce_' . $userdata->ID ) )
-                        die();
-                    
-                    parse_str( sanitize_text_field( wp_unslash( $_POST['order'] ) ) , $data );
-                    
-                    if (!is_array($data)    ||  count($data)    <   1)
-                        die();
+                    // Security: Validate parsed data
+                    if (!is_array($data) || empty($data)) {
+                        wp_send_json_error(array('message' => __('Invalid order data.', 'post-types-order')));
+                        return;
+                    }
                     
                     //retrieve a list of all objects
                     $mysql_query    =   $wpdb->prepare("SELECT ID FROM ". $wpdb->posts ." 
@@ -601,24 +751,74 @@
 
             /**
             * Filter posts by category via AJAX
-            *
+            * Enhanced with comprehensive security validation
             */
             function filterPostsByCategory()
                 {
-                    // Verify nonce
-                    $nonce = $_POST['filter_nonce'];
-                    if (!wp_verify_nonce($nonce, 'interface_sort_nonce')) {
-                        wp_send_json_error(array('message' => __('Security check failed.', 'post-types-order')));
+                    // Security: Check if user is logged in and has proper capabilities
+                    if (!is_user_logged_in()) {
+                        wp_send_json_error(array('message' => __('Authentication required.', 'post-types-order')));
                         return;
                     }
 
-                    $post_type = sanitize_text_field($_POST['post_type']);
-                    $category_filter = sanitize_text_field($_POST['category_filter']);
+                    // Security: Check user capabilities
+                    if (!current_user_can('edit_posts')) {
+                        wp_send_json_error(array('message' => __('Insufficient permissions.', 'post-types-order')));
+                        return;
+                    }
 
-                    // Validate post type
+                    // Security: Validate and sanitize nonce
+                    $nonce = isset($_POST['filter_nonce']) ? sanitize_text_field(wp_unslash($_POST['filter_nonce'])) : '';
+                    if (empty($nonce) || !wp_verify_nonce($nonce, 'interface_sort_nonce')) {
+                        wp_send_json_error(array('message' => __('Security verification failed.', 'post-types-order')));
+                        return;
+                    }
+
+                    // Security: Validate and sanitize post type
+                    if (!isset($_POST['post_type']) || empty($_POST['post_type'])) {
+                        wp_send_json_error(array('message' => __('Post type is required.', 'post-types-order')));
+                        return;
+                    }
+
+                    $post_type = sanitize_text_field(wp_unslash($_POST['post_type']));
                     if (!post_type_exists($post_type)) {
                         wp_send_json_error(array('message' => __('Invalid post type.', 'post-types-order')));
                         return;
+                    }
+
+                    // Security: Check if user can edit this post type
+                    $post_type_object = get_post_type_object($post_type);
+                    if (!$post_type_object || !current_user_can($post_type_object->cap->edit_posts)) {
+                        wp_send_json_error(array('message' => __('Insufficient permissions for this post type.', 'post-types-order')));
+                        return;
+                    }
+
+                    // Security: Validate and sanitize category filter
+                    $category_filter = '';
+                    if (isset($_POST['category_filter'])) {
+                        $category_filter = sanitize_text_field(wp_unslash($_POST['category_filter']));
+                        // Validate category filter format (taxonomy:term_id)
+                        if (!empty($category_filter) && !preg_match('/^[a-zA-Z0-9_-]+:[0-9]+$/', $category_filter)) {
+                            wp_send_json_error(array('message' => __('Invalid category filter format.', 'post-types-order')));
+                            return;
+                        }
+
+                        // Additional validation: check if taxonomy exists and term exists
+                        if (!empty($category_filter)) {
+                            $filter_parts = explode(':', $category_filter);
+                            $taxonomy = $filter_parts[0];
+                            $term_id = intval($filter_parts[1]);
+
+                            if (!taxonomy_exists($taxonomy)) {
+                                wp_send_json_error(array('message' => __('Invalid taxonomy.', 'post-types-order')));
+                                return;
+                            }
+
+                            if (!term_exists($term_id, $taxonomy)) {
+                                wp_send_json_error(array('message' => __('Invalid term.', 'post-types-order')));
+                                return;
+                            }
+                        }
                     }
 
                     // Get pagination parameters
