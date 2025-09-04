@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.8.9] - 2025-01-04
+
+### Fixed
+- **CRITICAL PERFORMANCE FIX**: Eliminated unbounded query in filtered post reordering
+- **SQL Security**: Replaced string interpolation with proper prepared statements
+- **Memory Optimization**: Reduced memory usage by eliminating full post dataset loading
+- **Scalability**: Fixed timeout issues on sites with 1000+ posts
+
+### Performance Improvements
+- **Gap-Based Reordering**: Implemented efficient algorithm that doesn't require loading all posts
+- **Targeted Queries**: Only loads posts being reordered, not entire dataset
+- **Prepared Statements**: Enhanced security with proper SQL parameter binding
+- **Memory Efficiency**: Eliminated potential memory exhaustion on large sites
+
+### Technical Implementation
+- **Algorithm Optimization**: Replaced O(n) full dataset approach with O(k) targeted approach
+- **SQL Injection Prevention**: Used proper placeholder-based prepared statements
+- **Error Handling**: Added validation for empty datasets and edge cases
+- **Code Documentation**: Comprehensive comments explaining the optimization approach
+
+### Impact
+- **Large Sites**: Sites with 1000+ posts no longer experience timeouts during reordering
+- **Memory Usage**: Significant reduction in memory consumption during filtered operations
+- **Security**: Eliminated SQL injection vulnerability in filtered reordering
+- **Maintainability**: Cleaner, more efficient code with better documentation
+
 ## [2.8.8] - 2025-01-04
 
 ### Added

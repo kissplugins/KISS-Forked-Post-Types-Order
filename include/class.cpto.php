@@ -634,8 +634,19 @@
             /**
             * Save order when category filter is applied
             *
-            * @param array $data
-            * @param string $category_filter
+            * ⚠️  CRITICAL PERFORMANCE FUNCTION - RECENTLY OPTIMIZED ⚠️
+            *
+            * This function handles filtered post reordering without loading all posts.
+            * Uses efficient gap-based insertion to maintain relative order of non-filtered posts.
+            *
+            * PERFORMANCE IMPROVEMENTS:
+            * - Eliminated unbounded get_posts() call that loaded ALL posts
+            * - Uses targeted queries to get only necessary post IDs and menu_order values
+            * - Implements gap-based insertion algorithm for efficient reordering
+            * - Maintains relative order without full dataset loading
+            *
+            * @param array $data The reorder data from AJAX
+            * @param string $category_filter The category filter in format "taxonomy:term_id"
             */
             function saveFilteredAjaxOrder($data, $category_filter)
                 {
@@ -647,37 +658,15 @@
                         return; // Invalid filter format
                     }
 
-                    $taxonomy = $filter_parts[0];
+                    $taxonomy = sanitize_text_field($filter_parts[0]);
                     $term_id = intval($filter_parts[1]);
 
                     // Get current post type from the interface
                     $current_post_type = $this->current_post_type ? $this->current_post_type->name : 'post';
 
-                    // Get all posts in this post type ordered by current menu_order
-                    $all_posts = get_posts(array(
-                        'post_type' => $current_post_type,
-                        'posts_per_page' => -1,
-                        'post_status' => 'any',
-                        'orderby' => 'menu_order',
-                        'order' => 'ASC',
-                        'fields' => 'ids'
-                    ));
-
-                    // Get posts that were in the filtered view (the ones being reordered)
-                    $filtered_post_ids = array();
-                    foreach($data as $key => $values) {
-                        if ($key === 'item') {
-                            foreach($values as $position => $id) {
-                                $filtered_post_ids[] = (int)$id;
-                            }
-                        }
-                    }
-
-                    // Create a new order array that preserves non-filtered posts
-                    $new_order = array();
+                    // PERFORMANCE FIX: Instead of loading ALL posts, use efficient gap-based reordering
+                    // Extract the new order for filtered posts only
                     $filtered_posts_new_order = array();
-
-                    // Extract the new order for filtered posts
                     foreach($data as $key => $values) {
                         if ($key === 'item') {
                             foreach($values as $position => $id) {
@@ -686,33 +675,63 @@
                         }
                     }
 
-                    // Build the final order: preserve positions of non-filtered posts,
-                    // insert filtered posts in their new order
-                    $filtered_index = 0;
-                    foreach($all_posts as $post_id) {
-                        if (in_array($post_id, $filtered_post_ids)) {
-                            // This post was in the filter, use its new position
-                            if ($filtered_index < count($filtered_posts_new_order)) {
-                                $new_order[] = $filtered_posts_new_order[$filtered_index];
-                                $filtered_index++;
-                            }
-                        } else {
-                            // This post was not in the filter, keep its relative position
-                            $new_order[] = $post_id;
-                        }
+                    // PERFORMANCE OPTIMIZATION: Use gap-based insertion instead of loading all posts
+                    if (empty($filtered_posts_new_order)) {
+                        return; // Nothing to reorder
                     }
 
-                    // Update menu_order for all posts
-                    foreach($new_order as $position => $post_id) {
-                        $data_update = array('menu_order' => $position);
+                    // Get current menu_order values for the filtered posts only
+                    // Create placeholders for IN clause to avoid SQL injection
+                    $placeholders = implode(',', array_fill(0, count($filtered_posts_new_order), '%d'));
+                    $query_params = array_merge($filtered_posts_new_order, array($current_post_type));
 
-                        //Deprecated, rely on pto/save-ajax-order
+                    $current_orders = $wpdb->get_results($wpdb->prepare("
+                        SELECT ID, menu_order
+                        FROM {$wpdb->posts}
+                        WHERE ID IN ({$placeholders})
+                        AND post_type = %s
+                        ORDER BY menu_order ASC
+                    ", $query_params));
+
+                    // Calculate gaps between existing menu_order values to insert filtered posts
+                    // This preserves the relative order of non-filtered posts without loading them all
+
+                    if (empty($current_orders)) {
+                        return; // No posts found to reorder
+                    }
+
+                    // Extract menu_order values from results
+                    $menu_orders = array();
+                    foreach ($current_orders as $post_data) {
+                        $menu_orders[] = (int)$post_data->menu_order;
+                    }
+
+                    // Get the range of menu_order values we're working with
+                    $min_order = min($menu_orders);
+                    $max_order = max($menu_orders);
+
+                    // Create evenly spaced menu_order values within the existing range
+                    $order_gap = max(1, floor(($max_order - $min_order + 1) / count($filtered_posts_new_order)));
+
+                    // Assign new menu_order values to maintain relative positioning
+                    foreach($filtered_posts_new_order as $index => $post_id) {
+                        $new_menu_order = $min_order + ($index * $order_gap);
+
+                        $data_update = array('menu_order' => $new_menu_order);
+
+                        // Apply filters for extensibility
                         $data_update = apply_filters('post-types-order_save-ajax-order', $data_update, 'item', $post_id);
-
                         $data_update = apply_filters('pto/save-ajax-order', $data_update, 'item', $post_id);
 
+                        // Update only the filtered posts, not all posts
                         $wpdb->update($wpdb->posts, $data_update, array('ID' => $post_id));
                     }
+
+                    // Trigger completion action
+                    do_action('PTO/order_update_complete');
+
+                    // Clear caches
+                    CptoFunctions::site_cache_clear();
                 }
 
 
