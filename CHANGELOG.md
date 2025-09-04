@@ -5,6 +5,76 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.8.8] - 2025-01-04
+
+### Added
+- **Plugin Version Display**: Added plugin version number to Debug Information section
+- **Version Tracking**: Easy identification of current plugin version during troubleshooting
+- **Debug Enhancement**: Improved diagnostic information with version context
+
+### User Experience Improvements
+- **Quick Version Check**: Instantly see plugin version without navigating to plugins page
+- **Troubleshooting Aid**: Version information helps with support and debugging
+- **Professional Display**: Clean formatting consistent with other debug information
+
+### Technical Implementation
+- **Dynamic Version**: Uses PTO_VERSION constant for accurate version display
+- **Fallback Handling**: Shows "Unknown" if version constant is not defined
+- **Secure Output**: Properly escaped using esc_html() for security
+- **Consistent Styling**: Matches existing debug information formatting
+
+## [2.8.7] - 2025-01-04
+
+### Added
+- **Self Tests Button**: Quick access button in top right corner of main KISS Re-Order page
+- **Professional Integration**: Seamlessly integrated with WordPress admin design standards
+- **Responsive Design**: Adapts to different screen sizes and mobile devices
+- **Visual Enhancement**: Dashicons tools icon with hover effects
+
+### User Experience Improvements
+- **One-Click Access**: Direct access to self-tests from main ordering interface
+- **Workflow Enhancement**: No need to navigate through WordPress menus
+- **Visual Clarity**: Clear button placement and professional styling
+- **Mobile Friendly**: Responsive design works on all device sizes
+
+### Technical Implementation
+- **Header Integration**: Added to main page header with proper positioning
+- **CSS Styling**: Professional button styling with hover states
+- **Responsive CSS**: Media queries for mobile device compatibility
+- **WordPress Standards**: Uses admin_url() and proper WordPress functions
+
+### Design Features
+- **Top Right Placement**: Intuitive location for secondary actions
+- **Dashicons Integration**: Uses WordPress admin tools icon
+- **Hover Effects**: Professional interaction feedback
+- **Consistent Styling**: Matches WordPress admin button standards
+
+## [2.8.6] - 2025-01-04
+
+### Added
+- **Quick Edit Feature**: Right arrow (→) links next to post titles for instant editor access
+- **New Tab Opening**: Quick edit links open post editor in new browser tab
+- **Professional Styling**: Hover effects and focus states for accessibility
+- **Drag-and-Drop Protection**: Quick edit links don't interfere with reordering functionality
+
+### User Experience Improvements
+- **One-Click Editing**: Click the → arrow to instantly open post editor
+- **Workflow Enhancement**: Edit posts without losing your place in the ordering interface
+- **Visual Feedback**: Hover effects show interactive elements clearly
+- **Accessibility**: Proper focus states and ARIA labels for screen readers
+
+### Technical Implementation
+- **Walker Integration**: Added to post title display in class.walkers.php
+- **CSS Styling**: Professional hover and focus effects in cpt.css
+- **JavaScript Protection**: Prevents interference with drag-and-drop functionality
+- **Security**: Uses WordPress get_edit_post_link() for proper URL generation
+
+### Design Features
+- **Subtle Appearance**: Gray arrow that highlights blue on hover
+- **Consistent Spacing**: Proper margin and padding for clean layout
+- **Responsive Design**: Works across different screen sizes
+- **WordPress Standards**: Follows WordPress admin color scheme
+
 ## [2.8.5] - 2025-01-04
 
 ### Security

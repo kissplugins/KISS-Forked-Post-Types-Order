@@ -11,6 +11,66 @@
 #order-objects #sortable li  .options {float: right; padding: 0 10px 0 10px; }
 #order-objects #sortable li  .options a {text-decoration: none; color: #3c434a;}
 #order-objects #sortable li  .options a:hover {color: #2271b1;}
+
+/* Quick Edit Arrow Styling */
+#order-objects #sortable li .pto-quick-edit {
+    color: #666;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: bold;
+    margin-left: 8px;
+    padding: 2px 4px;
+    border-radius: 3px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+#order-objects #sortable li .pto-quick-edit:hover {
+    color: #2271b1;
+    background-color: #f0f0f1;
+    text-decoration: none;
+}
+
+#order-objects #sortable li .pto-quick-edit:focus {
+    outline: 2px solid #2271b1;
+    outline-offset: 1px;
+}
+
+/* Self Tests Button Styling */
+.pto-self-tests-btn {
+    font-size: 13px !important;
+    line-height: 26px !important;
+    height: 28px !important;
+    margin-top: 2px !important;
+    text-decoration: none !important;
+}
+
+.pto-self-tests-btn:hover {
+    background-color: #f6f7f7 !important;
+    border-color: #0073aa !important;
+    color: #0073aa !important;
+}
+
+.pto-self-tests-btn .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+}
+
+/* Responsive adjustments for smaller screens */
+@media screen and (max-width: 782px) {
+    .pto-self-tests-btn {
+        position: static !important;
+        display: block !important;
+        margin: 10px 0 0 0 !important;
+        width: auto !important;
+    }
+
+    #cpto .wrap h2 {
+        display: block !important;
+        margin-right: 0 !important;
+    }
+}
 #order-objects #sortable li  .options span {font-weight: normal}
 #order-objects .term_type_li ul {margin-top: 6px}
 

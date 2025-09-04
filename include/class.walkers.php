@@ -34,15 +34,19 @@
                     extract($args, EXTR_SKIP);
 
                     $item_title     =   apply_filters( 'the_title', $object->post_title, $object->ID );
-                    
+
                     $item_details   =   apply_filters('pto/interface_item_data', '', $object );
-                     
+
+                    // Add clickable right arrow for quick edit access
+                    $edit_link = get_edit_post_link( $object );
+                    $quick_edit_arrow = $edit_link ? ' <a href="' . esc_url($edit_link) . '" target="_blank" class="pto-quick-edit" title="' . esc_attr__('Edit post in new tab', 'post-types-order') . '">→</a>' : '';
+
                     $output .= $indent . '<li id="item_' . $object->ID . '">
-                                                <span>' . $item_title . ' ' . $item_details .'</span>';
-                    
+                                                <span>' . $item_title . ' ' . $item_details . $quick_edit_arrow . '</span>';
+
                     if ( $options['edit_view_links']    ===  1 )
-                        $output .=  '<span class="options ui-sortable-handle"><a href="' . get_edit_post_link( $object ) .'"><span class="dashicons dashicons-edit"></span></a></span>';                
-                    
+                        $output .=  '<span class="options ui-sortable-handle"><a href="' . get_edit_post_link( $object ) .'"><span class="dashicons dashicons-edit"></span></a></span>';
+
                     $output .=  '</li>';
                     
                     $output .=  apply_filters( 'pto/interface/table/tbody', '', $object );

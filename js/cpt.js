@@ -18,7 +18,12 @@
 
     jQuery(document).ready(function()
         {
-            
+
+            // Prevent quick edit arrows from interfering with drag and drop
+            jQuery(document).on('mousedown', '.pto-quick-edit', function(e) {
+                e.stopPropagation();
+            });
+
             jQuery('table.wp-list-table #the-list').sortable({
                 
                                                         placeholder: {
