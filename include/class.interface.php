@@ -119,7 +119,13 @@
                     ?>
                     <div id="cpto" class="wrap">
                         <div class="icon32" id="icon-edit"><br></div>
-                        <h2><?php echo esc_html( $this->CPTO->current_post_type->labels->singular_name . ' -  '. esc_html__('KISS Re-Order', 'post-types-order') ); ?></h2>
+                        <div style="position: relative;">
+                            <h2 style="display: inline-block; margin-right: 20px;"><?php echo esc_html( $this->CPTO->current_post_type->labels->singular_name . ' -  '. esc_html__('KISS Re-Order', 'post-types-order') ); ?></h2>
+                            <a href="<?php echo admin_url('tools.php?page=pto-self-tests'); ?>" class="button button-secondary pto-self-tests-btn" style="position: absolute; top: 0; right: 0;">
+                                <span class="dashicons dashicons-admin-tools" style="vertical-align: middle; margin-right: 5px;"></span>
+                                <?php _e('Self Tests', 'post-types-order'); ?>
+                            </a>
+                        </div>
 
                         <div id="ajax-response"></div>
                         
@@ -141,6 +147,9 @@
                         echo '</div>';
                         echo '<div id="debug-content" style="display: none; padding: 0 10px 10px 10px; border-top: 1px solid #ffeaa7;">';
                         echo '<h4 style="margin: 10px 0; color: #856404;">Category Filter Debug Information</h4>';
+
+                        // Add plugin version information
+                        echo '<p><strong>Plugin Version:</strong> ' . esc_html(defined('PTO_VERSION') ? PTO_VERSION : 'Unknown') . '</p>';
 
                         // Add the toggle script
                         echo '<script>
@@ -355,6 +364,11 @@
                                 } else {
                                     console.log('❌ Category filter dropdown NOT found');
                                 }
+
+                                // Prevent quick edit arrows from interfering with drag and drop
+                                jQuery(document).on('mousedown', '.pto-quick-edit', function(e) {
+                                    e.stopPropagation();
+                                });
 
                                 // Initialize sortable
                                 function initSortable() {

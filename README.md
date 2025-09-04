@@ -37,7 +37,9 @@ This is a fork of the popular [Post Types Order plugin](https://wordpress.org/pl
 1. Go to any post type admin page (Posts, Pages, or Custom Post Types)
 2. Use the category filter dropdown to narrow down posts (if available)
 3. Drag and drop posts to reorder them
-4. Changes are saved automatically via AJAX
+4. Click the right arrow (→) next to any post title to edit that post in a new tab
+5. Click the "Self Tests" button in the top right corner to run diagnostic tests
+6. Changes are saved automatically via AJAX
 
 ## Requirements
 
@@ -55,7 +57,7 @@ This fork is based on the excellent [Post Types Order plugin](https://wordpress.
 
 **Author**: KISS Plugins
 **Website**: [KISSplugins.com](https://KISSplugins.com)
-**Version**: 2.8.5
+**Version**: 2.8.8
 
 ## License
 
